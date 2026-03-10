@@ -1,0 +1,18 @@
+# Virtual environment
+venv/
+
+# Data lớn
+paula_choice_full_details.json
+chunks.json
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# Streamlit
+.streamlit/
+
+# OS
+.DS_Store

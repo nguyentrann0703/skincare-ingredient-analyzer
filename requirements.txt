@@ -1,0 +1,10 @@
+# Core
+weaviate-client>=4.4.0
+sentence-transformers>=2.7.0
+torch>=2.2.0                  # Apple Silicon: pip install torch torchvision torchaudio
+numpy>=1.26.0
+tqdm>=4.66.0
+
+# Notebook
+jupyter>=1.0.0
+pandas>=2.2.0

@@ -1,0 +1,14 @@
+# Structure of 10 Hydroxydecanoic Acid
+
+This document outlines the structure and metadata of the ingredient "10 Hydroxydecanoic Acid" extracted from the dataset.
+
+## Metadata:
+- **Name**: 10 Hydroxydecanoic Acid
+- **URL**: https://www.paulaschoice.com/ingredient-dictionary/ingredient-10-hydroxydecanoic-acid.html?fdid=ingredients
+- **Title**: 10-Hydroxydecanoic Acid | Skin Care Ingredient Dictionary   | Paula's Choice
+- **H1 Title**: 10-Hydroxydecanoic Acid
+- **Description**: 30% Off When You Build A Routine.
+- **Full Description**: 30% Off When You Build A Routine. 30% Off When You Build A Routine. 30% Off When You Build A Routine. HELLO , or 10-hydroxydecanoic acid is a medium chain fatty acid that can be derived from royal jelly, the nutrient substance produced by worker bees in a hive to feed queens and larvae. While royal jelly itself has been used for medicinal purposes since antiquity, the specific study of 10-hydroxydecanoic acid’s benefits is relatively recent. As a fatty acid, 10-hydroxydecanoic acid has skin conditioning properties, but researchers find that 10-hydroxydecanoic acid exerts strong anti-inflammatory effects as well. Evidence also shows that it has antibacterial properties and wound-healing abilities. Perhaps most intriguing is research suggesting 10-hydroxydecanoic acid helps normalize keratinization, the process where skin cells move through the epidermis to skin’s surface. Hyperkeratinization can lead to clogged pores and is typically one of the pillars of the development of acne. This ingredient’s mechanism of action works synergistically with salicylic acid to help clear closed comedones. The independent Cosmetic Ingredient Review board has ruled that 10-hydroxydecanoic acid is safe as used in cosmetics, where during its most recent report, usage amounts ranged from 0.0084%-0.1%. Note: A bio-identical synthetic version of this ingredient is available for use in cosmetics; however, brands may also use the bee-derived version, which is not considered vegan. Paula’s Choice Skincare uses the synthetic version. Paula’s Choice Skincare is available locally in over 20 markets worldwide. If visiting the site from one of the markets below, please shop through your local site. You’re welcome to visit the US site, but please note you will not be able to order from it. For information on shipping to markets not listed, visit our .
+- **Related Ingredients**: Royal Jelly, Fatty Acid
+- **Meta Description**: 10-hydroxydecanoic acid has soothing, antibacterial, and keratinization-normalizing properties. Learn more at Beautypedia by Paula’s Choice.  
+- **OG Description**: 10-hydroxydecanoic acid has soothing, antibacterial, and keratinization-normalizing properties. Learn more at Beautypedia by Paula’s Choice.  
