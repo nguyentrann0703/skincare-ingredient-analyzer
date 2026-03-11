@@ -1,8 +1,24 @@
-httpx==0.28.1
-numpy==2.4.3
+# ── Core RAG pipeline ─────────────────────────────────────────────────────────
+weaviate-client>=4.4.0
+sentence-transformers>=2.7.0
+torch>=2.2.0                  # Apple Silicon: pip install torch torchvision torchaudio
+numpy>=1.26.0
+tqdm>=4.66.0
+
+# ── Streamlit UI ───────────────────────────────────────────────────────────────
+streamlit>=1.35.0
+
+# ── OCR pipeline ──────────────────────────────────────────────────────────────
+easyocr
+opencv-python-headless
+Pillow>=10.0.0
+
+# ── YOLO ──────────────────────────────────────────────────────────────────────
+ultralytics>=8.0.0
+
+# ── Notebook / data ───────────────────────────────────────────────────────────
+jupyter>=1.0.0
+pandas>=2.2.0
+
+# ── Scraping (optional) ───────────────────────────────────────────────────────
 scrapling==0.4.2
-sentence_transformers==5.2.3
-streamlit==1.55.0
-torch==2.10.0
-tqdm==4.67.3
-weaviate_client==4.20.3

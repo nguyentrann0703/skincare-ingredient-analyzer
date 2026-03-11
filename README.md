@@ -10,8 +10,8 @@ This project has two core runtime pipelines:
 
 | Pipeline | Input | Output |
 |---|---|---|
-| **Luồng 1 — Concern Classifier** | Ingredient list (from OCR or manual input) | Grouped safety analysis (no concern / worth knowing / potential concern) |
-| **Luồng 2 — RAG Q&A** | Natural language question | LLM-generated answer grounded in ingredient KB |
+| **Pipeline 1 — Concern Classifier** | Ingredient list (from OCR or manual input) | Grouped safety analysis (safe / potential concerns / alert) |
+| **Pipeline 2 — RAG Q&A** | Natural language question | LLM-generated answer grounded in ingredient KB |
 
 Knowledge base: **Paula's Choice Ingredient Dictionary** (2,509 ingredients)
 
@@ -35,13 +35,16 @@ Knowledge base: **Paula's Choice Ingredient Dictionary** (2,509 ingredients)
       │  Token Jaccard     │   │                         │
       └────────┬───────────┘   │  IngredientRetriever    │
                │               │  → Weaviate hybrid      │
-               │               │    search (BM25+vector) │
+               ▲               │    search (BM25+vector) │
                │               │                         │
-               │               │  OllamaLLM              │
-               │               │  → Qwen2.5:7b           │
-               │               └──────────┬──────────────┘
-               │                          │
-               └──────────┬───────────────┘
+      ┌────────────────────┐   │  OllamaLLM              │
+      │   ocr_pipeline.py  │   │  → Qwen2.5:7b           │
+      │                    │   └──────────┬──────────────┘
+      │  YOLOv11 detect    │              │
+      │  EasyOCR extract   │              │
+      │  LLM clean         │              │
+      └────────────────────┘              │
+               └──────────┬──────────────┘
                           ▼
               ┌───────────────────────┐
               │  paula_choice_        │
@@ -64,19 +67,25 @@ paula-scraper/
 ├── 🧹 Data Pipeline
 │   └── paula_choice_cleaning.ipynb      # Jupyter notebook: clean → classify → export
 │
-├── 🔍 Concern Classifier (Luồng 1)
+├── 🔍 Concern Classifier (Pipeline 1)
 │   └── concern_classifier.py            # Exact/fuzzy ingredient lookup, concern grouping
+│
+├── 📷 OCR Pipeline
+│   └── ocr_pipeline.py                  # YOLOv11 detection + EasyOCR + LLM cleaner
 │
 ├── 🗄️ Vector DB Pipeline
 │   ├── chunker.py                       # Split KB records → summary + detail chunks
 │   ├── weaviate_ingest.py               # Embed (BAAI/bge-base-en-v1.5) + ingest to Weaviate
 │   └── chunks.json                      # Pre-built chunks (generated, not committed)
 │
-├── 🤖 RAG Pipeline (Luồng 2)
+├── 🤖 RAG Pipeline (Pipeline 2)
 │   └── rag_pipeline.py                  # QueryClassifier + Retriever + OllamaLLM
 │
 ├── 🖥️ App
 │   └── app.py                           # Streamlit UI (2 tabs)
+│
+├── 🤖 Models
+│   └── models/best.pt                   # YOLOv11s trained on ingredient label detection
 │
 ├── 🐳 Infrastructure
 │   └── docker-compose.yml               # Weaviate local instance
@@ -96,6 +105,8 @@ paula-scraper/
 | Embedding | BAAI/bge-base-en-v1.5 via sentence-transformers |
 | Vector DB | Weaviate 1.27 (Docker, local) |
 | Search | Hybrid: BM25 + cosine vector (HNSW) |
+| Object Detection | YOLOv11s (trained on ingredient label dataset) |
+| OCR | EasyOCR |
 | Language | Python 3.12 |
 
 ---
@@ -186,15 +197,29 @@ Rule-based classifier (no LLM overhead):
 - **ingredient_specific**: query contains a known ingredient name → direct lookup
 - **open_ended**: everything else → hybrid search with extracted filters
 
+### OCR Pipeline
+
+Three-stage pipeline for physical label scanning:
+
+1. **YOLOv11s** — detects ingredient label region (mAP50: 0.889 on test set)
+2. **EasyOCR** — extracts raw text from cropped region with CLAHE preprocessing
+3. **LLM cleaner** — Qwen2.5:7b parses noisy OCR output into a clean ingredient list, with rule-based fallback
+
+When `models/best.pt` is absent, the pipeline falls back to full-image OCR (mock mode).
+
+### Scan Context Injection
+
+After scanning a product, the ingredient list is silently injected into subsequent RAG queries — enabling follow-up questions like *"Is any of these ingredients unsafe for sensitive skin?"* without the user needing to repeat the product details.
+
 ---
 
 ## Concern Groups
 
 | Group | Criteria | Examples |
 |---|---|---|
-| ✓ No Concerns | rating Best/Good, no override categories | Niacinamide, Glycerin |
-| ⚠ Worth Knowing | rating Average, or Preservative/Fragrance category | Phenoxyethanol, Parfum |
-| ✕ Potential Concern | rating Bad/Worst, or Irritant category | Formaldehyde, Alcohol Denat |
+| ✓ Safe | rating Best/Good, no override categories | Niacinamide, Glycerin |
+| ⚠ Potential Concerns | rating Average, or Preservative/Fragrance category | Phenoxyethanol, Parfum |
+| ✕ Alert | rating Bad/Worst, or Irritant category | Formaldehyde, Alcohol Denat |
 
 ---
 
@@ -202,21 +227,27 @@ Rule-based classifier (no LLM overhead):
 
 ### Tab 1 — Product Scan
 
-Paste an ingredient list (newline or comma-separated):
+**Camera Scan** — upload a photo of the ingredient label, or use your webcam. The OCR pipeline will detect and extract the ingredient list automatically.
+
+**Manual Input** — paste or type the ingredient list directly (newline or comma-separated):
 
 ```
 Water, Glycerin, Niacinamide, Phenoxyethanol, Fragrance
 ```
 
-Returns grouped concern analysis with safety details per ingredient.
+Results are grouped into Safe, Potential Concerns, and Alert — tap any ingredient to learn more.
 
 ### Tab 2 — Ask AI
 
-Example queries:
-- `What does niacinamide do for skin?`
-- `Is phenoxyethanol safe to use?`
-- `What humectants are safe for sensitive skin?`
-- `Why is fragrance concerning in skincare?`
+Ask anything about cosmetic ingredients:
+
+```
+What does niacinamide do for skin?
+Is phenoxyethanol safe for sensitive skin?
+What's the difference between AHA and BHA?
+```
+
+Scan a product first — the AI will automatically use that product's ingredient list as context for your questions.
 
 ---
 
@@ -225,13 +256,3 @@ Example queries:
 **Paula's Choice Ingredient Dictionary** — scraped from [paulaschoice.com](https://www.paulaschoice.com/ingredient-dictionary)
 
 2,509 ingredients with: description, rating (Best/Good/Average/Bad/Worst), categories, key points, benefits, warnings, source URL.
-
----
-
-## Roadmap
-
-- [ ] OCR pipeline (YOLO + Tesseract) to scan physical product labels
-- [ ] Multilingual support (Vietnamese queries)
-- [ ] LLM parameter controls in UI (temperature, top-k)
-- [ ] Product history / scan log
-- [ ] Ingredient comparison mode
